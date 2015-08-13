@@ -1,0 +1,40 @@
+var Vrms = 12;
+var freq = 50;
+var carrierFreq = 50000;
+
+
+var b = require('bonescript');
+b.pinMode('P8_13', b.OUTPUT);
+
+var timeFactor = 2*freq*Math.PI / 1000.0;                                       // rad/ms
+var amplitudeFactor = Math.sqrt(2)*Vrms;                                        // 
+var sampleFreq = freq * 10;                                                     // Sampling rate
+var cont = true;
+
+console.log("timeFactor = ", timeFactor);
+console.log("amplitudeFactor = ", amplitudeFactor);
+
+function startTime()
+{
+    var d = new Date();
+    var ms = d.getMilliseconds();
+    
+    var duty = (Math.sin(timeFactor*ms) + 1) / 2;                               // de 0 a 100%
+    b.analogWrite('P8_13', duty, carrierFreq);    
+    console.log(ms, amplitudeFactor*Math.sin(timeFactor*ms));
+
+cont = false;
+
+    if (cont)
+    {   
+        setTimeout(startTime, 1000.0/sampleFreq);
+    }
+}
+
+console.log("Starting Main");
+
+setTimeout(function() {cont = false;}, 10000);
+startTime();
+
+b.pinMode('P8_13', b.INPUT);
+console.log("End");
